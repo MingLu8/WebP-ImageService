@@ -23,8 +23,13 @@ namespace ImageService.Controllers
             _rootPath = AppDomain.CurrentDomain.BaseDirectory;
         }
 
-        [HttpGet]
-        public IActionResult Get([FromQuery ]string fileName)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="fileName">if requested file is .webp extension, the requesting browser is not Edge, Chrome, or Firefox, then .jpeg file format is returned. </param>
+        /// <returns></returns>
+        [HttpGet("{fileName}")]
+        public IActionResult Get(string fileName)
         {
             var imagesPath = Path.Combine(_rootPath, fileName);
             var b = System.IO.File.ReadAllBytes(imagesPath);
@@ -44,7 +49,7 @@ namespace ImageService.Controllers
             return File(memoryStream.ToArray(), "image/jpeg");
         }
 
-        [HttpPost]
+        [HttpPost("upload")]
         public IActionResult Post(IFormFile image)
         {
             using (FileStream normalFileStream = new FileStream(Path.Combine(_rootPath, image.FileName), FileMode.Create))
@@ -52,22 +57,36 @@ namespace ImageService.Controllers
                 image.CopyTo(normalFileStream);
             }
 
-            return Ok();
+            return Created(nameof(Get), new { fileName = image.FileName });
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="format">supported file extensions are jpg, jpeg, and png, note: don't enter '.'</param>
+        /// <returns></returns>
         [HttpPost("Decode")]
         public IActionResult Decode(IFormFile image, [FromQuery] string format)
         {
+            var fileName = Path.GetFileNameWithoutExtension(image.FileName) + "." + format;
             var decoded = new WebPFormat().Load(image.OpenReadStream());
-            decoded.Save(Path.Combine(_rootPath, Path.GetFileNameWithoutExtension(image.FileName) + "." + format));
+            decoded.Save(Path.Combine(_rootPath, fileName));
 
-            return Ok();
+            return Created(nameof(Get), new { fileName });
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="quality">1 to 100, means 1 too 100 percent, no decimals</param>
+        /// <returns></returns>
         [HttpPost("Encode")]
         public IActionResult Encode(IFormFile image, [FromQuery] int quality)
         {
-            using (FileStream webPFileStream = new FileStream(Path.Combine(_rootPath, Path.GetFileNameWithoutExtension(image.FileName) + "." + "webp"), FileMode.Create))
+            var fileName = Path.GetFileNameWithoutExtension(image.FileName) + "." + "webp";
+            using (FileStream webPFileStream = new FileStream(Path.Combine(_rootPath, fileName), FileMode.Create))
             {
                 using (ImageFactory imageFactory = new ImageFactory(preserveExifData: false))
                 {
@@ -78,48 +97,21 @@ namespace ImageService.Controllers
                 }
             }
 
-            return Ok();
+            return Created(nameof(Get), new { fileName });
         }
 
         [HttpPost("Lossless")]
         public IActionResult Lossless(IFormFile image)
         {
-            using (FileStream webPFileStream = new FileStream(Path.Combine(_rootPath, Path.GetFileNameWithoutExtension(image.FileName) + "." + "webp"), FileMode.Create))
-            {
-                using (ImageFactory imageFactory = new ImageFactory(preserveExifData: false))
-                {
-                    imageFactory.Load(image.OpenReadStream())
-                        .Format(new WebPFormat())
-                        .Quality(100)
-                        .Save(webPFileStream);
-                }
-            }
-
-            return Ok();
+            return Encode(image, 10);
         }
 
         [HttpPost("NearLossless")]
         public IActionResult NearLossless(IFormFile image)
         {
-            using (FileStream webPFileStream = new FileStream(Path.Combine(_rootPath, Path.GetFileNameWithoutExtension(image.FileName) + "." + "webp"), FileMode.Create))
-            {
-                using (ImageFactory imageFactory = new ImageFactory(preserveExifData: false))
-                {
-                    imageFactory.Load(image.OpenReadStream())
-                        .Format(new WebPFormat())
-                        .Quality(50)
-                        .Save(webPFileStream);
-                }
-            }
-
-            return Ok();
+            return Encode(image, 50);
         }
 
-        private byte[] GetBytes(Stream stream)
-        {
-            using var memoryStream = new MemoryStream();
-            stream.CopyTo(memoryStream);
-            return memoryStream.ToArray();
-        }
+        private IActionResult Created(string actionName, object routeValues) => CreatedAtAction(actionName, routeValues, null);
     }
 }
