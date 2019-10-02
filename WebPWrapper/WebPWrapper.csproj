@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.4</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="libwebp\libwebp_x64.dll" PackagePath="lib/netstandard2.0" Visible="false" />
+    <Content Include="libwebp\libwebp_x86.dll" PackagePath="lib/netstandard2.0" Visible="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
+  </ItemGroup>
+
+</Project>
