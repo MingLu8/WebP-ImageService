@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageService", "ImageServic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPWrapper", "WebPWrapper\WebPWrapper.csproj", "{F17DEC35-BB4E-4558-B1B5-6DB765A9EC97}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessor", "ImageProcessor\ImageProcessor.csproj", "{7A6FA786-2713-44D8-A97B-09D8EEE971C9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessor.Plugins.WebP", "ImageProcessor.Plugins.WebP\ImageProcessor.Plugins.WebP.csproj", "{E7D9B7AC-BE1B-452D-BD5C-738D0220215E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{F17DEC35-BB4E-4558-B1B5-6DB765A9EC97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F17DEC35-BB4E-4558-B1B5-6DB765A9EC97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F17DEC35-BB4E-4558-B1B5-6DB765A9EC97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A6FA786-2713-44D8-A97B-09D8EEE971C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A6FA786-2713-44D8-A97B-09D8EEE971C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A6FA786-2713-44D8-A97B-09D8EEE971C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A6FA786-2713-44D8-A97B-09D8EEE971C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7D9B7AC-BE1B-452D-BD5C-738D0220215E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7D9B7AC-BE1B-452D-BD5C-738D0220215E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7D9B7AC-BE1B-452D-BD5C-738D0220215E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7D9B7AC-BE1B-452D-BD5C-738D0220215E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

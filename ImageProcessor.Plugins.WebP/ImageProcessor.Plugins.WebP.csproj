@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Unmanaged\x64\libwebp.dll" />
+    <None Remove="Resources\Unmanaged\x86\libwebp.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Unmanaged\x64\libwebp.dll" />
+    <EmbeddedResource Include="Resources\Unmanaged\x86\libwebp.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImageProcessor\ImageProcessor.csproj" />
+  </ItemGroup>
+
+</Project>
