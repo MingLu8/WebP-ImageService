@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageService", "ImageService\ImageService.csproj", "{CC71DED0-0D22-4279-8FDE-D6E5F7FBA07C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPWrapper", "WebPWrapper\WebPWrapper.csproj", "{F17DEC35-BB4E-4558-B1B5-6DB765A9EC97}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessor", "ImageProcessor\ImageProcessor.csproj", "{7A6FA786-2713-44D8-A97B-09D8EEE971C9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessor.Plugins.WebP", "ImageProcessor.Plugins.WebP\ImageProcessor.Plugins.WebP.csproj", "{E7D9B7AC-BE1B-452D-BD5C-738D0220215E}"
@@ -21,10 +19,6 @@ Global
 		{CC71DED0-0D22-4279-8FDE-D6E5F7FBA07C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC71DED0-0D22-4279-8FDE-D6E5F7FBA07C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC71DED0-0D22-4279-8FDE-D6E5F7FBA07C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F17DEC35-BB4E-4558-B1B5-6DB765A9EC97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F17DEC35-BB4E-4558-B1B5-6DB765A9EC97}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F17DEC35-BB4E-4558-B1B5-6DB765A9EC97}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F17DEC35-BB4E-4558-B1B5-6DB765A9EC97}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7A6FA786-2713-44D8-A97B-09D8EEE971C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7A6FA786-2713-44D8-A97B-09D8EEE971C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A6FA786-2713-44D8-A97B-09D8EEE971C9}.Release|Any CPU.ActiveCfg = Release|Any CPU

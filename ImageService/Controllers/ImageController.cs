@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using ImageProcessor;
 using ImageProcessor.Plugins.WebP.Imaging.Formats;
 using Microsoft.AspNetCore.Http;
@@ -15,11 +14,11 @@ namespace ImageService.Controllers
         /// </summary>
     [Route("api/[controller]")]
         [ApiController]
-        public class WithImageProcessorController : ControllerBase
+        public class ImageController : ControllerBase
         {
             private readonly string _rootPath;
 
-            public WithImageProcessorController()
+            public ImageController()
             {
                 _rootPath = AppDomain.CurrentDomain.BaseDirectory;
             }
@@ -52,18 +51,16 @@ namespace ImageService.Controllers
             public IActionResult Get([FromQuery]string fileName)
             {
                 var imagesPath = Path.Combine(_rootPath, fileName);
+                if (!fileName.ToLower().EndsWith(".webp") || IsWebPSupported())
+                    return File(System.IO.File.ReadAllBytes(imagesPath), "image/" + Path.GetExtension(fileName).Substring(1));
+
                 using (var fileStream = new FileStream(imagesPath, FileMode.Open))
                 {
-                    if (!fileName.ToLower().EndsWith(".webp"))
-                        return File(fileStream, "image/" + Path.GetExtension(fileName).Substring(1));
-
-                    if (IsWebPSupported())
-                        return File(fileStream, "image/webp");
-
-                    var bitmap = ConvertFromWebP(fileStream);
-
-                    return File(GetBytes(bitmap), "image/jpeg");
-                }
+                    var bitmap = (Bitmap)ConvertFromWebP(fileStream);
+                //bitmap.Save("C:\\temp\\a.png");
+                //return File(System.IO.File.ReadAllBytes("C:\\temp\\a.png"), "image/jpeg");
+                return File(GetBytes(bitmap), "image/png");
+            }
             }
 
             /// <summary>
@@ -152,12 +149,12 @@ namespace ImageService.Controllers
 
             private byte[] GetBytes(Image image)
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    image.Save(memoryStream, ImageFormat.Jpeg);
-                    return memoryStream.ToArray();
-                }
+            using (var memoryStream = new MemoryStream())
+            {
+                image.Save(memoryStream, ImageFormat.Png);
+                return memoryStream.ToArray();
             }
+        }
 
             private byte[] GetBytes(Stream stream)
             {
@@ -170,7 +167,7 @@ namespace ImageService.Controllers
 
             private bool IsWebPSupported()
             {
-                var userAgent = Request.Headers["User-Agent"];
+                var userAgent = Request.Headers["User-Agent"].ToString();
                 return userAgent.Contains("Edge") || userAgent.Contains("Chrome") || userAgent.Contains("Firefox");
             }
         }

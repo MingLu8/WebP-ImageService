@@ -413,6 +413,78 @@ namespace ImageProcessor.Imaging.Formats
 
     public class ImageConverter : TypeConverter
     {
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            if (destinationType == typeof(byte[]))
+            {
+                return true;
+            }
+
+            return base.CanConvertTo(context, destinationType);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == null)
+            {
+                throw new ArgumentNullException("destinationType");
+            }
+
+            else if (destinationType == typeof(byte[]))
+            {
+                if (value != null)
+                {
+                    bool createdNewImage = false;
+                    MemoryStream ms = null;
+                    Image image = null;
+                    try
+                    {
+                        ms = new MemoryStream();
+
+                        image = (Image)value;
+
+                        //We don't want to serialize an icon - since we're not really working with
+                        //icons, these are "Images".  So, we'll force a new and valid bitmap to be
+                        //created around our icon with the ideal size.
+                        if (image.RawFormat.Equals(ImageFormat.Icon))
+                        {
+                            createdNewImage = true;
+                            image = new Bitmap(image, image.Width, image.Height);
+                        }
+
+                        image.Save(ms, ImageFormat.Png);
+                    }
+                    finally
+                    {
+                        if (ms != null)
+                        {
+                            ms.Close();
+                        }
+                        if (createdNewImage && image != null)
+                        {
+                            image.Dispose();
+                        }
+                    }
+
+                    if (ms != null)
+                    {
+                        return ms.ToArray();
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return new byte[0];
+                }
+            }
+
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
+
+
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             if (value is Icon)
