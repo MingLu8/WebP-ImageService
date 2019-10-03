@@ -1,19 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\ImageService.xml</DocumentationFile>
-    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>ImageService.xml</DocumentationFile>
+    <OutputPath></OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>ImageService.xml</DocumentationFile>
+    <OutputPath></OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ImageProcessor" Version="2.7.0.100" />
     <PackageReference Include="ImageProcessor.Plugins.WebP" Version="1.2.0.100" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc3" />
-
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
+    <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
     <PackageReference Include="WebPWrapper" Version="1.0.4" />
   </ItemGroup>
 
