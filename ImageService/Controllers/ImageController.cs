@@ -2,8 +2,6 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using ImageProcessor;
-using ImageProcessor.Plugins.WebP.Imaging.Formats;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,31 +14,15 @@ namespace ImageService.Controllers
         [ApiController]
         public class ImageController : ControllerBase
         {
+            private readonly IWebPService _webPService;
             private readonly string _rootPath;
 
-            public ImageController()
+            public ImageController(IWebPService webPService)
             {
+                _webPService = webPService;
                 _rootPath = AppDomain.CurrentDomain.BaseDirectory;
             }
 
-            private void CreateWebPImage(IFormFile image, string filePath, int quality)
-            {
-                using (FileStream webPFileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    using (ImageFactory imageFactory = new ImageFactory(preserveExifData: false))
-                    {
-                        imageFactory.Load(image.OpenReadStream())
-                            .Format(new WebPFormat())
-                            .Quality(quality)
-                            .Save(webPFileStream);
-                    }
-                }
-            }
-
-            private Image ConvertFromWebP(Stream stream)
-            {
-                return new WebPFormat().Load(stream);
-            }
 
             /// <summary>
             ///
@@ -56,7 +38,7 @@ namespace ImageService.Controllers
 
                 using (var fileStream = new FileStream(imagesPath, FileMode.Open))
                 {
-                    var bitmap = (Bitmap)ConvertFromWebP(fileStream);
+                    var bitmap = _webPService.ToBitmapImage(fileStream);
                 //bitmap.Save("C:\\temp\\a.png");
                 //return File(System.IO.File.ReadAllBytes("C:\\temp\\a.png"), "image/jpeg");
                 return File(GetBytes(bitmap), "image/png");
@@ -103,7 +85,7 @@ namespace ImageService.Controllers
             {
                 var fileName = Path.GetFileNameWithoutExtension(image.FileName) + "." + "webp";
 
-                CreateWebPImage(image, Path.Combine(_rootPath, fileName), quality);
+                _webPService.CreateWebPImage(image.OpenReadStream(), quality, Path.Combine(_rootPath, fileName));
 
                 return Created(fileName, new FileInfo(Path.Combine(_rootPath, fileName)).Length, image.Length);
             }
@@ -121,21 +103,21 @@ namespace ImageService.Controllers
             }
 
             /// <summary>
-            /// 50% quality
+            /// 40% quality
             /// </summary>
             /// <param name="image"></param>
             /// <returns></returns>
             [HttpPost("NearLossless")]
             public IActionResult NearLossless(IFormFile image)
             {
-                return Encode(image, 50);
+                return Encode(image, 40);
             }
 
             private IActionResult Created(string fileName, long newSize, long oldSize) => CreatedAtAction(nameof(Get), new { fileName }, new { oldSize, newSize });
 
             private void CreateBitmapImage(IFormFile image, string filePath)
             {
-                var bitmap = ConvertFromWebP(image.OpenReadStream());
+                var bitmap = _webPService.ToBitmapImage(image.OpenReadStream());
                 bitmap.Save(filePath);
             }
 

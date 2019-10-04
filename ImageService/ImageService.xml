@@ -4,6 +4,13 @@
         <name>ImageService</name>
     </assembly>
     <members>
+        <member name="M:ImageService.Controllers.CommandLineToolController.Get">
+             <summary>
+            
+             </summary>
+             <param name="fileName">if requested file is .webp extension, the requesting browser is not Edge, Chrome, or Firefox, then .jpeg file format is returned. </param>
+             <returns></returns>
+        </member>
         <member name="T:ImageService.Controllers.ImageController">
             <summary>
             Using local build of image processor nuget package
@@ -48,7 +55,7 @@
         </member>
         <member name="M:ImageService.Controllers.ImageController.NearLossless(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
-            50% quality
+            40% quality
             </summary>
             <param name="image"></param>
             <returns></returns>

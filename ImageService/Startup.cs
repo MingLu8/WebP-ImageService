@@ -31,6 +31,8 @@ namespace ImageService
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
                 c.IncludeXmlComments("ImageService.XML");
             });
+
+            services.AddSingleton<IWebPService, WebPService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
