@@ -29,7 +29,7 @@ namespace ImageService.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var fileName = "WebPConverter-CommandLine.zip";
+            var fileName = "WebPConverter-CommandLine.7z";
             var file = Path.Combine(_rootPath, fileName);
 
             return File(System.IO.File.ReadAllBytes(file), "APPLICATION/octet-stream", fileName);

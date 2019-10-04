@@ -25,10 +25,4 @@
     <ProjectReference Include="..\ImageProcessor\ImageProcessor.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="WebPConverter-CommandLine.zip">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
