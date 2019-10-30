@@ -18,11 +18,15 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
     <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
+
+   <!--<PackageReference Include="ImageProcessor" Version="3.0.0" />
+    <PackageReference Include="ImageProcessor.Plugins.WebP" Version="3.0.0" />-->
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ImageProcessor.Plugins.WebP\ImageProcessor.Plugins.WebP.csproj" />
     <ProjectReference Include="..\ImageProcessor\ImageProcessor.csproj" />
+    <ProjectReference Include="..\WebPWrapper\WebPWrapper.csproj" />
   </ItemGroup>
 
 </Project>

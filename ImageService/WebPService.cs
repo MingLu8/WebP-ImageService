@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.IO;
 using ImageProcessor;
+//using ImageProcessor.Formats;
 using ImageProcessor.Plugins.WebP.Imaging.Formats;
 
 namespace ImageService
@@ -16,10 +17,11 @@ namespace ImageService
     {
         public void CreateWebPImage(Stream stream, int quality, string filePath)
         {
-            using (FileStream webPFileStream = new FileStream(filePath, FileMode.Create))
+            using (var webPFileStream = new FileStream(filePath, FileMode.Create))
             {
-                using (ImageFactory imageFactory = new ImageFactory())
+                using (var imageFactory = new ImageFactory())
                 {
+                    //imageFactory.Quality = quality;
                     imageFactory.Load(stream)
                         .Format(new WebPFormat())
                         .Quality(quality)
@@ -32,8 +34,9 @@ namespace ImageService
         {
             using (var webPStream = new MemoryStream())
             {
-                using (ImageFactory imageFactory = new ImageFactory())
+                using (var imageFactory = new ImageFactory())
                 {
+                    //imageFactory.Quality = quality;
                     imageFactory.Load(imageStream)
                         .Format(new WebPFormat())
                         .Quality(quality)
@@ -43,6 +46,7 @@ namespace ImageService
                 return Image.FromStream(webPStream);
             }
         }
+
 
 
         public Image ToBitmapImage(Stream stream)

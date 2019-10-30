@@ -46,6 +46,14 @@
             <param name="quality">1 to 100, means 1 too 100 percent, no decimals</param>
             <returns></returns>
         </member>
+        <member name="M:ImageService.Controllers.ImageController.Encode2(Microsoft.AspNetCore.Http.IFormFile,System.Int32)">
+            <summary>
+            Create webp image from uploaded jpg or png image.
+            </summary>
+            <param name="image"></param>
+            <param name="quality">1 to 100, means 1 too 100 percent, no decimals</param>
+            <returns></returns>
+        </member>
         <member name="M:ImageService.Controllers.ImageController.Lossless(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
             100% quality.
@@ -56,6 +64,55 @@
         <member name="M:ImageService.Controllers.ImageController.NearLossless(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
             40% quality
+            </summary>
+            <param name="image"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ImageService.Controllers.WithLocalWebPWrapperController">
+            <summary>
+            Using local build of weblib dll
+            </summary>
+        </member>
+        <member name="M:ImageService.Controllers.WithLocalWebPWrapperController.Get(System.String)">
+             <summary>
+            
+             </summary>
+             <param name="fileName">if requested file is .webp extension, the requesting browser is not Edge, Chrome, or Firefox, then .jpeg file format is returned. </param>
+             <returns></returns>
+        </member>
+        <member name="M:ImageService.Controllers.WithLocalWebPWrapperController.Post(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            upload file, no conversion
+            </summary>
+            <param name="image"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ImageService.Controllers.WithLocalWebPWrapperController.Decode(Microsoft.AspNetCore.Http.IFormFile,System.String)">
+            <summary>
+            Create jpg or png image from uploaded webp image.
+            </summary>
+            <param name="image"></param>
+            <param name="format">supported file extensions are jpg, jpeg, and png, note: don't enter '.'</param>
+            <returns></returns>
+        </member>
+        <member name="M:ImageService.Controllers.WithLocalWebPWrapperController.Encode(Microsoft.AspNetCore.Http.IFormFile,System.Int32)">
+            <summary>
+            Create webp image from uploaded jpg or png image.
+            </summary>
+            <param name="image"></param>
+            <param name="quality">1 to 100, means 1 too 100 percent, no decimals</param>
+            <returns></returns>
+        </member>
+        <member name="M:ImageService.Controllers.WithLocalWebPWrapperController.Lossless(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            100% quality.
+            </summary>
+            <param name="image"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ImageService.Controllers.WithLocalWebPWrapperController.NearLossless(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            50% quality
             </summary>
             <param name="image"></param>
             <returns></returns>
