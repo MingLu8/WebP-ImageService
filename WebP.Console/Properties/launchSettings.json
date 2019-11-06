@@ -1,8 +1,7 @@
 {
   "profiles": {
     "WebP.ConsoleApp": {
-      "commandName": "Project",
-      "commandLineArgs": "-i c:\\temp -r true"
+      "commandName": "Project"
     }
   }
 }

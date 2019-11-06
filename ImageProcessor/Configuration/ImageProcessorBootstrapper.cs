@@ -62,7 +62,7 @@ namespace ImageProcessor.Configuration
         public NativeBinaryFactory NativeBinaryFactory { get; }
 
         /// <summary>
-        /// Adds the given image formats to the supported format list. Useful for when 
+        /// Adds the given image formats to the supported format list. Useful for when
         /// the type finder fails to dynamically add the supported formats.
         /// </summary>
         /// <param name="format">
@@ -71,7 +71,7 @@ namespace ImageProcessor.Configuration
         public void AddImageFormats(params ISupportedImageFormat[] format) => ((List<ISupportedImageFormat>)this.SupportedImageFormats).AddRange(format);
 
         /// <summary>
-        /// Allows the setting of the default logger. Useful for when 
+        /// Allows the setting of the default logger. Useful for when
         /// the type finder fails to dynamically add the custom logger implementation.
         /// </summary>
         /// <param name="logger"></param>
