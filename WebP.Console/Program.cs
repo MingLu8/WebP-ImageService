@@ -16,16 +16,16 @@ namespace WebP.ConsoleApp
 
         static void Main(string[] args)
         {
-            args = new List<string>
-            {
-                "-iC:\\temp\\tiny", "-f*.jpg|*.png", "-oC:\\temp\\out-tiny3", "-m8", "-s30", "-t100"
-            }.ToArray();
-            if (args.Length == 0)
-            {
-                Console.WriteLine("Please execute the run-me.bat file instead this executable directly.");
-                Console.Read();
-                return;
-            }
+            //args = new List<string>
+            //{
+            //    "-iC:\\temp\\tiny", "-f*.jpg|*.png", "-oC:\\temp\\out-tiny3", "-m8", "-s30", "-t100"
+            //}.ToArray();
+            //if (args.Length == 0)
+            //{
+            //    Console.WriteLine("Please execute the run-me.bat file instead this executable directly.");
+            //    Console.Read();
+            //    return;
+            //}
 
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed<Options>(opts => RunOptionsAndReturnExitCode(opts))
