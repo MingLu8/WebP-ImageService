@@ -7,11 +7,13 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.6.0" />
+  <PackageReference Include="ImageProcessor" Version="3.0.0" />
+  <PackageReference Include="ImageProcessor.Plugins.WebP" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ImageProcessor.Plugins.WebP\ImageProcessor.Plugins.WebP.csproj" />
-    <ProjectReference Include="..\ImageProcessor\ImageProcessor.csproj" />
+    <!--<ProjectReference Include="..\ImageProcessor.Plugins.WebP\ImageProcessor.Plugins.WebP.csproj" />
+    <ProjectReference Include="..\ImageProcessor\ImageProcessor.csproj" />-->
   </ItemGroup>
 
   <ItemGroup>
