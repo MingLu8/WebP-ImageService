@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace WebP.ConsoleApp
         {
             //args = new List<string>
             //{
-            //    "-iC:\\temp\\tiny", "-f*.jpg|*.png", "-oC:\\temp\\out-tiny3", "-m8", "-s30", "-t100"
+            //    "-iC:\\temp\\tiny", "-f91325746.png", "-oC:\\temp\\out-image-tiny-110m42", "-s95", "-t100"
             //}.ToArray();
             //if (args.Length == 0)
             //{
@@ -47,7 +48,7 @@ namespace WebP.ConsoleApp
                 return;
             }
 
-            var files = GetFiles(o.InputFolder, o.FileSearchPatterns.Split('|'), o.SearchOption).ToList();
+            var files = GetFiles(o.InputFolder, o.FileSearchPatterns.Split('|'), o.SearchOption);
 
             if (!files.Any())
             {
@@ -59,54 +60,95 @@ namespace WebP.ConsoleApp
             if (o.MaxParrallelism.HasValue)
                 po.MaxDegreeOfParallelism = o.MaxParrallelism.Value;
 
-            Parallel.ForEach(files, po ,(a) =>
+            var startTime = DateTime.Now;
+            var newTotalSize = 0;
+            var badFiles = new Dictionary<FileInfo, Tuple<int, int, byte[]>>();
+
+            Parallel.ForEach(files, po, (a) =>
             //files.ForEach(a=>
             {
-                Console.WriteLine(a);
-                var outputPath = Path.GetDirectoryName(a.Replace(o.InputFolder, o.OutputFolder, true, CultureInfo.InvariantCulture));
+                var outputPath = Path.GetDirectoryName(a.FullName.Replace(o.InputFolder, o.OutputFolder, true, CultureInfo.InvariantCulture));
 
-                var newFilePath = Path.Combine(outputPath, Path.GetFileNameWithoutExtension(a) + ".webp");
+                var newFilePath = Path.Combine(outputPath, Path.GetFileNameWithoutExtension(a.Name) + ".webp");
                 Directory.CreateDirectory(outputPath);
 
                 //CreateWebPImage(Image.FromFile(a), quality, newFilePath);
-                CreateWebPImage(a, o.StartingQuality, newFilePath, o.Tolerance);
+                var result = CreateWebPImage(a.FullName, o.StartingQuality, o.Tolerance);
+                newTotalSize += result.Item3.Length;
+                var reduction = (a.Length - result.Item3.Length) * 100 / a.Length;
+                if (reduction < 0)
+                    badFiles.Add(a, result);
+                Console.WriteLine($"file:{a.FullName}, diff:{result.Item1}, quality:{result.Item2}, size: {a.Length}, new size: {result.Item3.Length}, reduction: {reduction}%");
+                File.WriteAllBytes(newFilePath, result.Item3);
                 //CreateWebPImage(Image.FromFile(a));
             });
-
-            Console.WriteLine($"input: {o.InputFolder}, output: {o.OutputFolder}, conversion qulity tolerance: {o.Tolerance}");
+            var totalSize = files.Sum(s => s.Length);
+            var totalReduction = (totalSize - newTotalSize) * 100 / totalSize;
+            Console.WriteLine();
+            Console.WriteLine($"Total of {files.Count()} files completed in {(int)DateTime.Now.Subtract(startTime).TotalSeconds} seconds.");
+            Console.WriteLine($"Total Size: {files.Sum(s => s.Length)}, new total size: {newTotalSize}, reduction: {totalReduction}%");
+            Console.WriteLine($"input: {o.InputFolder}, files: {o.FileSearchPatterns}, output: {o.OutputFolder}, conversion quality tolerance: {o.Tolerance}.");
+            Console.WriteLine();
+            Console.WriteLine("negative reduction files:");
+            badFiles.Keys.ToList().ForEach(a =>
+            {
+                Console.WriteLine($"file:{a.FullName}, diff:{badFiles[a].Item1}, quality:{badFiles[a].Item2}, size: {a.Length}, new size: {badFiles[a].Item3.Length}.");
+            });
         }
 
-        public static void CreateWebPImage(string inPath, int quality, string filePath, int tolerance)
+        public static Tuple<int, int, byte[]> CreateWebPImage(string inPath, int quality, int tolerance)
         {
-            using (var oriImage = Image.FromFile(inPath))
+            var bytes = File.ReadAllBytes(inPath);
+            using(var ms = new MemoryStream(bytes))
+            using (var oriImage = Image.FromStream(ms))
             {
-                using (var image = RemoveTransparency(oriImage))
+                if (HasTranparency(oriImage))
                 {
-                    Console.WriteLine("================================================");
-                    Console.WriteLine($"Converting {Path.GetFileName(inPath)}.............");
+                    using (var referenceImage = RemoveTransparency(oriImage))
+                    {
 
-                    CreateWebPImage(image, quality, filePath, tolerance);
+                        return CreateWebPImage(bytes, referenceImage, quality, tolerance);
+                    }
                 }
-
+                else
+                {
+                    return CreateWebPImage(bytes, oriImage, quality, tolerance);
+                }
             }
 
 
-           // var bitmap = new WebPFormat().Load(File.OpenRead(filePath)) as Bitmap;
-           // var resultPath = $"C:\\temp\\result{Path.GetExtension(inPath)}";
-           // //ImageUtility.ToGrayScale(bitmap).Save(resultPath);
+            // var bitmap = new WebPFormat().Load(File.OpenRead(filePath)) as Bitmap;
+            // var resultPath = $"C:\\temp\\result{Path.GetExtension(inPath)}";
+            // //ImageUtility.ToGrayScale(bitmap).Save(resultPath);
 
-           // bitmap.Save(resultPath);
-           // image.Save($"C:\\temp\\original{Path.GetExtension(inPath)}");
-           // //resultPath = $"C:\\temp\\xx.jpg";
-           //// var diff = ImageTool.GetPercentageDifference(inPath, resultPath, 0);
-           // var diff = GetDiff(image, bitmap);
-           // Console.WriteLine($"{Path.GetFileName(inPath)} {diff}");
+            // bitmap.Save(resultPath);
+            // image.Save($"C:\\temp\\original{Path.GetExtension(inPath)}");
+            // //resultPath = $"C:\\temp\\xx.jpg";
+            //// var diff = ImageTool.GetPercentageDifference(inPath, resultPath, 0);
+            // var diff = GetDiff(image, bitmap);
+            // Console.WriteLine($"{Path.GetFileName(inPath)} {diff}");
         }
 
-        public static void CreateWebPImage(Image image, int quality, string file, int tolerance)
+        public static bool HasTranparency(Image image)
         {
-            var webp = GetWebP(image, quality);
-            var diff = 765;
+            if (image.RawFormat.Guid == ImageFormat.Jpeg.Guid) return false;
+
+            var bmp = (Bitmap)image;
+            for (var x = 0; x < bmp.Width; x++)
+            {
+                for (var y = 0; y < bmp.Height; y++)
+                {
+                    if (bmp.GetPixel(x, y).A != 255) return true;
+                }
+            }
+            return false;
+        }
+
+        public static Tuple<int, int, byte[]> CreateWebPImage(byte[] bytes, Image referenceImage, int quality, int tolerance)
+        {
+            //var bitDepth = FormatUtilities.GetSupportedBitDepth(referenceImage.PixelFormat);
+            var webp = GetWebP(bytes, quality);
+            var diff = 1000;
 
             while (diff > tolerance && quality < 100)
             {
@@ -114,18 +156,14 @@ namespace WebP.ConsoleApp
                 else if (quality >= 70 && quality < 90) quality += 5;
                 else if (quality >= 90 && quality < 96) quality += 2;
                 else quality++;
-                webp = GetWebP(image, quality);
+                webp = GetWebP(bytes, quality);
                 using(var ms = new MemoryStream(webp))
                 {
                     using (var temp = new WebPFormat().Load(ms))
-                        diff = GetDiff(image, temp);
+                        diff = GetDiff(referenceImage, temp, tolerance);
                 }
-
-                Console.WriteLine($"file:{file}, diff:{diff}, quality:{quality}");
             }
-
-            Console.WriteLine($"file:{file}, diff:{diff}, quality:{quality}");
-            File.WriteAllBytes(file, webp);
+            return new Tuple<int, int, byte[]>(diff == 1000? 0: diff, quality, webp);
         }
 
         //public static byte[] GetWebP(Image image, int quality)
@@ -144,20 +182,27 @@ namespace WebP.ConsoleApp
         //    }
         //}
 
-        public static byte[] GetWebP(Image bitmapImage, int quality)
+        public static byte[] GetWebP(byte[] bytes, int quality)
         {
             using (var memoryStream = new MemoryStream())
             {
-                new WebPFormat().Save(memoryStream, bitmapImage, FormatUtilities.GetSupportedBitDepth(bitmapImage.PixelFormat), quality);
+                using (var imageFactory = new ImageFactory())
+                {
+                    imageFactory.Load(bytes);
+
+                    imageFactory.Quality = quality;
+                    imageFactory.BackgroundColor(Color.White);
+                    imageFactory.Save(memoryStream, new WebPFormat());
+                }
+                // new WebPFormat().Save(memoryStream, Image.FromFile("C:\\temp\\tiny\\91325746.png"), bitDepth, quality);
                 return memoryStream.ToArray();
             }
         }
 
-        public static int GetDiff(Image img1, Image img2)
+        public static int GetDiff(Image img1, Image img2, int tolerance)
         {
             var bm1 = (Bitmap)img1;
             var bm2 = (Bitmap)img2;
-
             var max_diff = 0;
             for (var x = 0; x < img1.Width; x++)
             {
@@ -170,8 +215,9 @@ namespace WebP.ConsoleApp
                         Math.Abs(color1.R - color2.R) +
                         Math.Abs(color1.G - color2.G) +
                         Math.Abs(color1.B - color2.B);
-                    if (diff > max_diff)
-                        max_diff = diff;
+
+                    if (diff > tolerance) return diff;
+                    if (diff > max_diff) max_diff = diff;
                 }
             }
 
@@ -212,18 +258,20 @@ namespace WebP.ConsoleApp
         //}
 
 
-        public static IEnumerable<string> GetFiles(string path,
+        public static IEnumerable<FileInfo> GetFiles(string path,
             string[] searchPatterns,
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
+            var directionInfo = new DirectoryInfo(path);
             return searchPatterns.AsParallel()
                 .SelectMany(searchPattern =>
-                    Directory.EnumerateFiles(path, searchPattern, searchOption));
+                    directionInfo.EnumerateFiles(searchPattern, searchOption));
         }
 
         public static Bitmap RemoveTransparency(Image bitmap)
         {
-            var result = new Bitmap(bitmap.Size.Width, bitmap.Size.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            var result = new Bitmap(bitmap.Size.Width, bitmap.Size.Height, PixelFormat.Format24bppRgb);
+
             result.SetResolution(bitmap.HorizontalResolution, bitmap.VerticalResolution);
             using (var g = Graphics.FromImage(result))
             {
@@ -231,8 +279,17 @@ namespace WebP.ConsoleApp
                 g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
                 g.DrawImage(bitmap, 0, 0);
             }
-
             return result;
+        }
+
+        public static byte[] GetBytes(Image image)
+        {
+            using(var ms = new MemoryStream())
+            {
+                image.Save(ms, ImageFormat.Bmp);
+                return ms.ToArray();
+            }
+
         }
     }
 
