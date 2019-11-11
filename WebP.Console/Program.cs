@@ -6,20 +6,21 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ASI.Core.Imaging;
 using CommandLine;
-using ImageProcessor;
-using ImageProcessor.Formats;
+//using ImageProcessor;
+//using ImageProcessor.Formats;
 
 namespace WebP.ConsoleApp
 {
     class Program
     {
-
+        static IImageConverter Converter = new ImageConverter();
         static void Main(string[] args)
         {
             args = new List<string>
             {
-                "-iC:\\temp\\tiny", "-f*.jpg|*.png" , "-oC:\\temp\\diff", "-s99", "-t70", "-afalse"
+                "-iC:\\temp\\tiny", "-f91325746.png" , "-oC:\\temp\\diff", "-s99", "-t70", "-afalse"
             }.ToArray();
             //if (args.Length == 0)
             //{
@@ -168,11 +169,10 @@ namespace WebP.ConsoleApp
                 webp = GetWebP(bytes, quality, allowAlphaChannel);
                 if(webp.Length >= bytes.Length && previousWebp != null && webp.Length > previousWebp.Length)
                 {
-                    using (var ms = new MemoryStream(previousWebp))
-                    {
-                        using (var temp = new WebPFormat().Load(ms))
-                            diff = GetDiff(referenceImage, temp, tolerance, 99);
-                    }
+
+                    using (var temp = Converter.GetImage(Converter.ConvertToBitmap(previousWebp, Converter.GetImageFormat(referenceImage))))
+                        diff = GetDiff(referenceImage, temp, tolerance, 99);
+
                     webp = previousWebp;
                     quality = previousQuality;
                     break;
@@ -180,11 +180,9 @@ namespace WebP.ConsoleApp
 
                 previousWebp = webp;
                 previousQuality = quality;
-                using(var ms = new MemoryStream(webp))
-                {
-                    using (var temp = new WebPFormat().Load(ms))
-                        diff = quality == 100 ? 0 : GetDiff(referenceImage, temp, tolerance, quality);
-                }
+
+                using (var temp = Converter.GetImage(Converter.ConvertToBitmap(webp, Converter.GetImageFormat(referenceImage))))
+                    diff = quality == 100 ? 0 : GetDiff(referenceImage, temp, tolerance, quality);
 
                 if (quality == maxQuality) break;
 
@@ -218,22 +216,22 @@ namespace WebP.ConsoleApp
             //{
             //    return webp.EncodeLossless((Bitmap)Image.FromStream(new MemoryStream(bytes)), 9);
             //}
+            return Converter.ConvertToWebP(bytes, quality, !allowAlphaChannel);
+            //using (var memoryStream = new MemoryStream())
+            //{
+            //    using (var imageFactory = new ImageFactory())
+            //    {
+            //        imageFactory.Load(bytes);
 
-            using (var memoryStream = new MemoryStream())
-            {
-                using (var imageFactory = new ImageFactory())
-                {
-                    imageFactory.Load(bytes);
-
-                    imageFactory.Quality = quality;
-                    //imageFactory.Alpha(0);
-                    if(!allowAlphaChannel)
-                        imageFactory.BackgroundColor(Color.White);
-                    imageFactory.Save(memoryStream, new WebPFormat());
-                }
-                // new WebPFormat().Save(memoryStream, Image.FromFile("C:\\temp\\tiny\\91325746.png"), bitDepth, quality);
-                return memoryStream.ToArray();
-            }
+            //        imageFactory.Quality = quality;
+            //        //imageFactory.Alpha(0);
+            //        if(!allowAlphaChannel)
+            //            imageFactory.BackgroundColor(Color.White);
+            //        imageFactory.Save(memoryStream, new WebPFormat());
+            //    }
+            //    // new WebPFormat().Save(memoryStream, Image.FromFile("C:\\temp\\tiny\\91325746.png"), bitDepth, quality);
+            //    return memoryStream.ToArray();
+            //}
         }
 
         public static int GetDiff(Image img1, Image img2, int tolerance, int quality)
@@ -378,7 +376,12 @@ namespace WebP.ConsoleApp
                 g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
                 g.DrawImage(bitmap, 0, 0);
             }
-            return result;
+
+            using (var ms = new MemoryStream())
+            {
+                result.Save(ms, bitmap.RawFormat);
+                return Image.FromStream(ms) as Bitmap;
+            }
         }
 
         public static byte[] GetBytes(Image image)

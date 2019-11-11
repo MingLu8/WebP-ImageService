@@ -14,9 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ASI.Core.Imaging" Version="1.0.1" />
     <PackageReference Include="CommandLineParser" Version="2.6.0" />
   <PackageReference Include="ImageProcessor" Version="3.0.0" />
-  <PackageReference Include="ImageProcessor.Plugins.WebP" Version="3.0.1" />
+  <PackageReference Include="ImageProcessor.Plugins.WebP" Version="3.0.2" />
   </ItemGroup>
 
   <ItemGroup>
